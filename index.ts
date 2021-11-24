@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { MovieResponse, MovieResultsResponse } from "./types";
+import { ExtractTmdbIdParams, MovieResponse, MovieResultsResponse } from "./types";
 
 const titleMatch = (movieData, needle) =>
   movieData.title.toLowerCase() === needle.toLowerCase() ||
@@ -58,7 +58,7 @@ class TmdbExtractor {
     return exactMatch?.id || 0;
   }
 
-  async extractTmdbId({ imdbId, originalTitle, title, year }): Promise<number> {
+  async extractTmdbId({ imdbId, originalTitle, title, year }: ExtractTmdbIdParams): Promise<number> {
     let id: number = 0;
     if (imdbId) {
       id = await this.getById(imdbId);
@@ -69,7 +69,7 @@ class TmdbExtractor {
     if (!id && title && year) {
       id = await this.getExactByTitleAndMaybeYear(
         title,
-        parseInt(year, 10) + 1
+        year + 1
       );
     }
     if (!id && originalTitle && year) {

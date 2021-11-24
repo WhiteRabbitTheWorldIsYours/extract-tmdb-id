@@ -1,3 +1,9 @@
+export type ExtractTmdbIdParams = {
+  imdbId?: string
+  title: string
+  originalTitle?: string
+  year?: number
+}
 export interface Response {}
 
 export interface Genre {
