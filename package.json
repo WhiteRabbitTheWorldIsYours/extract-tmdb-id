@@ -1,6 +1,6 @@
 {
   "name": "@whiterabbitjs/extract-tmdb-id",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "repository": "WhiteRabbitTheWorldIsYours/extract-tmdb-id",
   "author": "Kosta Korenkov <kosta@korenkov.net>",
