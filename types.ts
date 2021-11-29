@@ -3,6 +3,7 @@ export type ExtractTmdbIdParams = {
   title: string
   originalTitle?: string
   year?: number
+  language?: string
 }
 export interface Response {}
 
