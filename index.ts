@@ -9,8 +9,10 @@ import {
 const normalize = (str: string) =>
   str
     .toLowerCase()
-    .replace(/[,.:'’"]/g, "")
-    .replace(/\s?-\s?/g, " ");
+    .replace(/[,.'’"?!]/g, "")
+    .replace(/\s?[:-]\s?/g, " ")
+    .replace(/\s?&\s?/g, " and ")
+    .trim();
 
 const titleMatch = (movieData, needle) =>
   normalize(movieData.title) === normalize(needle) ||
@@ -49,11 +51,11 @@ class TmdbExtractor {
     return exactMatch?.id || 0;
   }
 
-  async getByTitleOnly(title): Promise<number> {
+  async getByTitleOnly(title, language): Promise<number> {
     const byTitle = await fetch(
       `https://api.themoviedb.org/3/search/movie?api_key=${
         this.tmdbApiKey
-      }&query=${escape(title)}`
+      }&query=${escape(title)}` + (language ? `&language=${language}` : "")
     ).then((res) => res.json() as Promise<MovieResultsResponse>);
     if (!byTitle) return 0;
     const exactMatch = byTitle.results?.find((res) => titleMatch(res, title));
@@ -112,7 +114,7 @@ class TmdbExtractor {
       );
     }
     if (!id && title) {
-      id = await this.getByTitleOnly(title);
+      id = await this.getByTitleOnly(title, language);
     }
     return id;
   }
