@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { escape } from "querystring";
 import {
   ExtractTmdbIdParams,
   MovieResponse,
@@ -6,7 +7,10 @@ import {
 } from "./types";
 
 const normalize = (str: string) =>
-  str.toLowerCase().replace(/[,.:]/g, "").replace(/\s?-\s?/g, " ");
+  str
+    .toLowerCase()
+    .replace(/[,.:'’"]/g, "")
+    .replace(/\s?-\s?/g, " ");
 
 const titleMatch = (movieData, needle) =>
   normalize(movieData.title) === normalize(needle) ||
@@ -36,21 +40,20 @@ class TmdbExtractor {
     const results: MovieResultsResponse = await fetch(
       `https://api.themoviedb.org/3/search/movie?api_key=${
         this.tmdbApiKey
-      }&query=${title}&primary_release_year=${year || ""}` +
+      }&query=${escape(title)}&primary_release_year=${year || ""}` +
         (language ? `&language=${language}` : "")
     ).then((res) => res.json() as Promise<MovieResultsResponse>);
     const exactMatch = results.results?.find(
-      (res) =>
-        (res.title?.toLowerCase() === title.toLowerCase() ||
-          res.original_title?.toLowerCase() === title.toLowerCase()) &&
-        (year || !res.release_date)
+      (res) => titleMatch(res, title) && (year || !res.release_date)
     );
     return exactMatch?.id || 0;
   }
 
   async getByTitleOnly(title): Promise<number> {
     const byTitle = await fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${this.tmdbApiKey}&query=${title}`
+      `https://api.themoviedb.org/3/search/movie?api_key=${
+        this.tmdbApiKey
+      }&query=${escape(title)}`
     ).then((res) => res.json() as Promise<MovieResultsResponse>);
     if (!byTitle) return 0;
     const exactMatch = byTitle.results?.find((res) => titleMatch(res, title));
@@ -63,11 +66,14 @@ class TmdbExtractor {
     language
   ): Promise<number> {
     const byTitle = await fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${this.tmdbApiKey}&query=${title}` +
-        (language ? `&language=${language}` : "")
+      `https://api.themoviedb.org/3/search/movie?api_key=${
+        this.tmdbApiKey
+      }&query=${escape(title)}` + (language ? `&language=${language}` : "")
     ).then((res) => res.json() as Promise<MovieResultsResponse>);
     const byOriginalTitle = await fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${this.tmdbApiKey}&query=${originalTitle}` +
+      `https://api.themoviedb.org/3/search/movie?api_key=${
+        this.tmdbApiKey
+      }&query=${escape(originalTitle)}` +
         (language ? `&language=${language}` : "")
     ).then((res) => res.json() as Promise<MovieResultsResponse>);
     if (!byTitle || !byOriginalTitle) return 0;
