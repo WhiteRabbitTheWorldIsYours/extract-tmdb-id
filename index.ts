@@ -1,5 +1,9 @@
 import fetch from "node-fetch";
-import { ExtractTmdbIdParams, MovieResponse, MovieResultsResponse } from "./types";
+import {
+  ExtractTmdbIdParams,
+  MovieResponse,
+  MovieResultsResponse,
+} from "./types";
 
 const titleMatch = (movieData, needle) =>
   movieData.title.toLowerCase() === needle.toLowerCase() ||
@@ -40,7 +44,16 @@ class TmdbExtractor {
     return exactMatch?.id || 0;
   }
 
-  async getByTitleOnly(title, originalTitle): Promise<number> {
+  async getByTitleOnly(title): Promise<number> {
+    const byTitle = await fetch(
+      `https://api.themoviedb.org/3/search/movie?api_key=${this.tmdbApiKey}&query=${title}`
+    ).then((res) => res.json() as Promise<MovieResultsResponse>);
+    if (!byTitle) return 0;
+    const exactMatch = byTitle.results?.find((res) => titleMatch(res, title));
+    return exactMatch?.id || 0;
+  }
+
+  async getByTitleAndOriginalTitle(title, originalTitle): Promise<number> {
     const byTitle = await fetch(
       `https://api.themoviedb.org/3/search/movie?api_key=${this.tmdbApiKey}&query=${title}`
     ).then((res) => res.json() as Promise<MovieResultsResponse>);
@@ -58,7 +71,12 @@ class TmdbExtractor {
     return exactMatch?.id || 0;
   }
 
-  async extractTmdbId({ imdbId, originalTitle, title, year }: ExtractTmdbIdParams): Promise<number> {
+  async extractTmdbId({
+    imdbId,
+    originalTitle,
+    title,
+    year,
+  }: ExtractTmdbIdParams): Promise<number> {
     let id: number = 0;
     if (imdbId) {
       id = await this.getById(imdbId);
@@ -67,16 +85,13 @@ class TmdbExtractor {
       id = await this.getExactByTitleAndMaybeYear(title, year);
     }
     if (!id && title && year) {
-      id = await this.getExactByTitleAndMaybeYear(
-        title,
-        year + 1
-      );
+      id = await this.getExactByTitleAndMaybeYear(title, year + 1);
     }
-    if (!id && originalTitle && year) {
-      id = await this.getByTitleOnly(title, originalTitle);
+    if (!id && originalTitle) {
+      id = await this.getByTitleAndOriginalTitle(title, originalTitle);
     }
-    if (!id && title && year) {
-      id = await this.getExactByTitleAndMaybeYear(title);
+    if (!id && title) {
+      id = await this.getByTitleOnly(title);
     }
     return id;
   }

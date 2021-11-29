@@ -1,15 +1,15 @@
 {
   "name": "@whiterabbitjs/extract-tmdb-id",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/index.js",
   "repository": "WhiteRabbitTheWorldIsYours/extract-tmdb-id",
   "author": "Kosta Korenkov <kosta@korenkov.net>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "publish": "clean-publish"
+    "build": "tsc"
   },
   "devDependencies": {
+    "@types/node": "^16.11.10",
     "clean-publish": "^3.4.3",
     "typescript": "^4.5.2"
   },
