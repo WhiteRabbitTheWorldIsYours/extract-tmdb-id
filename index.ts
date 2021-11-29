@@ -116,6 +116,9 @@ class TmdbExtractor {
     if (!id && title) {
       id = await this.getByTitleOnly(title, language);
     }
+    if (!id && title) {
+      id = await this.getByTitleOnly(title.replace(/\s+\(.+\)$/, ''), language);
+    }
     return id;
   }
 }
