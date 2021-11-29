@@ -6,7 +6,7 @@ import {
 } from "./types";
 
 const normalize = (str: string) =>
-  str.toLowerCase().replace(/[,.]/g, "").replace(/[-]/g, " ");
+  str.toLowerCase().replace(/[,.:]/g, "").replace(/\s?-\s?/g, " ");
 
 const titleMatch = (movieData, needle) =>
   normalize(movieData.title) === normalize(needle) ||
